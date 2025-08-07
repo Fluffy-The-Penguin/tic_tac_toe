@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe with a Twist</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            text-align: center;
+            background-color: #ffebf3;
+            margin: 0;
+            padding: 20px;
+            background-size: cover;
+        }
+        
+        h1 {
+            color: #ff6b9d;
+            text-shadow: 3px 3px 0px #fff, 5px 5px 0px rgba(255,107,157,0.3);
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #9d65c9;
+            font-size: 1.2em;
+            margin-top: 0;
+            text-shadow: 1px 1px 0px #fff;
+        }
+        
+        .game-container {
+            display: inline-block;
+            margin-top: 20px;
+            background-color: rgba(255,255,255,0.8);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: 5px dashed #ff6b9d;
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+            margin: 20px auto;
+        }
+        
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #fff;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cell:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            background-color: #f0f0f0;
+        }
+        
+        .cell.x {
+            color: #9d65c9;
+            background-color: #f0e6ff;
+        }
+        
+        .cell.o {
+            color: #ff9a56;
+            background-color: #fff0e6;
+        }
+        
+        .cell.winner {
+            animation: rainbow 1s infinite;
+            background-color: #fffacd;
+        }
+        
+        @keyframes rainbow {
+            0% { box-shadow: 0 0 15px #ff6b9d; }
+            25% { box-shadow: 0 0 15px #9d65c9; }
+            50% { box-shadow: 0 0 15px #6bd5ff; }
+            75% { box-shadow: 0 0 15px #6bff9d; }
+            100% { box-shadow: 0 0 15px #ff6b9d; }
+        }
+        
+        .message {
+            font-size: 24px;
+            margin: 20px 0;
+            min-height: 36px;
+            color: #ff6b9d;
+            font-weight: bold;
+            background-color: white;
+            padding: 15px;
+            border-radius: 50px;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 3px dotted #9d65c9;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .reset-btn {
+            background-color: #ff6b9d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .reset-btn:hover {
+            background-color: #ff4785;
+            transform: scale(1.05) rotate(3deg);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        .reset-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .reset-btn::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255,255,255,0.1);
+            transform: rotate(45deg);
+            transition: all 0.3s;
+        }
+        
+        .reset-btn:hover::after {
+            left: 100%;
+        }
+        
+        .troll-btn {
+            background-color: #9d65c9;
+            animation: pulse 2s infinite;
+        }
+        
+        .chaos-btn {
+            background-color: #ff9a56;
+        }
+        
+        .emoji-btn {
+            background-color: #6bd5ff;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .player-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .player {
+            font-size: 24px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .active {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(157, 101, 201, 0.5);
+            animation: bounce 0.5s infinite alternate;
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0) scale(1.1); }
+            to { transform: translateY(-5px) scale(1.1); }
+        }
+        
+        .player::after {
+            content: "✨";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 16px;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        .active::after {
+            opacity: 1;
+            animation: sparkle 1s infinite;
+        }
+        
+        @keyframes sparkle {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tic-Tac-Toe with a Twist</h1>
+    <p class="subtitle">Because regular Tic-Tac-Toe is for boring people 🥱</p>
+    
+    <div class="game-container">
+        <div class="player-info">
+            <div class="player x active" id="player1">Player 1: 🦄</div>
+            <div class="player o" id="player2">Player 2: 🐷</div>
+        </div>
+        
+        <div class="message" id="message">🦄's turn to shine!</div>
+        
+        <div class="board" id="board" style="justify-content: center;">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+        
+        <div class="button-container">
+            <button class="reset-btn" id="resetBtn">New Game 🎮</button>
+            <button class="reset-btn troll-btn" id="trollBtn">Troll Mode 🤪</button>
+            <button class="reset-btn chaos-btn" id="chaosBtn">Chaos Mode 🌪️</button>
+            <button class="reset-btn emoji-btn" id="emojiBtn">Swap Emojis 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const board = document.getElementById('board');
+            const cells = document.querySelectorAll('.cell');
+            const message = document.getElementById('message');
+            const resetBtn = document.getElementById('resetBtn');
+            const trollBtn = document.getElementById('trollBtn');
+            const chaosBtn = document.getElementById('chaosBtn');
+            const emojiBtn = document.getElementById('emojiBtn');
+            const player1Display = document.getElementById('player1');
+            const player2Display = document.getElementById('player2');
+            
+            let currentPlayer = 'x';
+            let gameActive = true;
+            let gameState = ['', '', '', '', '', '', '', '', ''];
+            let trollMode = false;
+            let chaosMode = false;
+            
+            // Possible emoji combinations
+            const emojiSets = [
+                { x: '🦄', o: '🐷' },
+                { x: '🐶', o: '🐱' },
+                { x: '🍕', o: '🍔' },
+                { x: '👑', o: '🎩' },
+                { x: '🌮', o: '🍣' },
+                { x: '🤡', o: '👽' },
+                { x: '🐔', o: '🥚' },
+                { x: '🧀', o: '🍷' },
+                { x: '🦖', o: '🌋' },
+                { x: '🧟', o: '🧠' }
+            ];
+            
+            let currentEmojis = {...emojiSets[0]};
+            
+            // Funny messages
+            const winMessages = {
+                x: [
+                    "The unicorn reigns supreme!",
+                    "🦄 Magic beats bacon!",
+                    "As expected, you're a legend!",
+                    "Winner winner unicorn dinner!",
+                    "Did you cheat? Nah, just kidding... or am I?",
+                    "You're basically a Tic-Tac-Toe wizard now!",
+                    "Victory! Can we get a round of applause? 👏",
+                    "You won! Here's your imaginary trophy 🏆",
+                    "Success! Now go tell your mom you're good at something!"
+                ],
+                o: [
+                    "The pig has prevailed! Oink oink!",
+                    "🐷 Bacon beats magic today!",
+                    "Well that was... unexpected.",
+                    "The pig is dancing on your grave!",
+                    "Did the pig just outsmart you? Oink!",
+                    "The underpig wins! Film at 11!",
+                    "Oink oink! That's pig for 'I win!'",
+                    "Porky just schooled you!",
+                    "The pig flies! Wait, that's not right..."
+                ]
+            };
+            
+            const drawMessages = [
+                "A draw? How... underwhelming.",
+                "Boring! Try again!",
+                "Even the emojis are disappointed.",
+                "This is why we can't have nice things.",
+                "The real winner is... nobody. Yay.",
+                "You both lose! Just kidding... or am I?",
+                "Tie game! Everyone gets participation trophies 🏆🏆",
+                "Stalemate! Like two sloths fighting.",
+                "Draw! The most exciting of outcomes! ...Not."
+            ];
+            
+            // Winning conditions
+            const winningConditions = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                [0, 4, 8], [2, 4, 6]             // diagonals
+            ];
+            
+            // Initialize the game
+            function initGame() {
+                gameState = ['', '', '', '', '', '', '', '', ''];
+                gameActive = true;
+                currentPlayer = 'x';
+                updatePlayerDisplay();
+                
+                // Random emoji set
+                changeEmojis();
+                
+                message.textContent = `${currentEmojis.x}'s turn to shine!`;
+                
+                cells.forEach(cell => {
+                    cell.textContent = '';
+                    cell.classList.remove('x', 'o', 'winner');
+                    cell.style.transform = 'scale(1)';
+                });
+                
+                // Reset modes
+                trollMode = false;
+                chaosMode = false;
+                trollBtn.style.backgroundColor = '#9d65c9';
+                chaosBtn.style.backgroundColor = '#ff9a56';
+                trollBtn.textContent = 'Troll Mode 🤪';
+                chaosBtn.textContent = 'Chaos Mode 🌪️';
+            }
+            
+            // Change emojis
+            function changeEmojis() {
+                const currentIndex = emojiSets.findIndex(set => 
+                    set.x === currentEmojis.x && set.o === currentEmojis.o);
+                let newIndex;
+                
+                do {
+                    newIndex = Math.floor(Math.random() * emojiSets.length);
+                } while (newIndex === currentIndex && emojiSets.length > 1);
+                
+                currentEmojis = {...emojiSets[newIndex]};
+                player1Display.textContent = `Player 1: ${currentEmojis.x}`;
+                player2Display.textContent = `Player 2: ${currentEmojis.o}`;
+                
+                // Update board with new emojis
+                cells.forEach((cell, index) => {
+                    if (gameState[index] === 'x') {
+                        cell.textContent = currentEmojis.x;
+                    } else if (gameState[index] === 'o') {
+                        cell.textContent = currentEmojis.o;
+                    }
+                });
+                
+                createConfetti(message, 10);
+                message.textContent = `Emojis swapped! ${currentEmojis.x} vs ${currentEmojis.o} FIGHT!`;
+                setTimeout(() => {
+                    if (gameActive) {
+                        message.textContent = `${currentPlayer === 'x' ? currentEmojis.x : currentEmojis.o}'s turn!`;
+                    }
+                }, 1500);
+            }
+            
+            // Update player display
+            function updatePlayerDisplay() {
+                if (currentPlayer === 'x') {
+                    player1Display.classList.add('active');
+                    player2Display.classList.remove('active');
+                } else {
+                    player1Display.classList.remove('active');
+                    player2Display.classList.add('active');
+                }
+            }
+            
+            // Handle cell click
+            function handleCellClick(e) {
+                const clickedCell = e.target;
+                const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
+                
+                if (gameState[clickedCellIndex] !== '' || !gameActive) {
+                    // Shake the cell to indicate it's not allowed
+                    clickedCell.style.animation = 'shake 0.5s';
+                    setTimeout(() => {
+                        clickedCell.style.animation = '';
+                    }, 500);
+                    return;
+                }
+                
+                // Play sound
+                playSound('click');
+                
+                // Update game state
+                gameState[clickedCellIndex] = currentPlayer;
+                clickedCell.textContent = currentPlayer === 'x' ? currentEmojis.x : currentEmojis.o;
+                clickedCell.classList.add(currentPlayer);
+                
+                // Animation
+                animateCell(clickedCell);
+                
+                // Check for win or draw
+                checkResult();
+                
+                // In chaos mode, sometimes randomly swap emojis after a move
+                if (chaosMode && Math.random() < 0.3) {
+                    setTimeout(() => {
+                        changeEmojis();
+                    }, 300);
+                }
+            }
+            
+            // Animate cell
+            function animateCell(cell) {
+                cell.style.transform = 'scale(0) rotate(180deg)';
+                setTimeout(() => {
+                    cell.style.transform = 'scale(1) rotate(0)';
+                    
+                    // In chaos mode, add extra craziness
+                    if (chaosMode) {
+                        cell.style.animation = 'rainbow 1s infinite';
+                        setTimeout(() => {
+                            cell.style.animation = '';
+                        }, 1000);
+                    }
+                }, 200);
+            }
+            
+            // Check game result
+            function checkResult() {
+                let roundWon = false;
+                
+                for (let i = 0; i < winningConditions.length; i++) {
+                    const [a, b, c] = winningConditions[i];
+                    
+                    if (gameState[a] === '' || gameState[b] === '' || gameState[c] === '') {
+                        continue;
+                    }
+                    
+                    if (gameState[a] === gameState[b] && gameState[b] === gameState[c]) {
+                        roundWon = true;
+                        
+                        // Highlight winning cells
+                        document.querySelector(`.cell[data-index="${a}"]`).classList.add('winner');
+                        document.querySelector(`.cell[data-index="${b}"]`).classList.add('winner');
+                        document.querySelector(`.cell[data-index="${c}"]`).classList.add('winner');
+                        
+                        // Add confetti
+                        createConfetti(board, 50);
+                        break;
+                    }
+                }
+                
+                if (roundWon) {
+                    playSound('win');
+                    const randomMsg = winMessages[currentPlayer][Math.floor(Math.random() * winMessages[currentPlayer].length)];
+                    message.textContent = randomMsg;
+                    gameActive = false;
+                    
+                    // Dance animation for winning emoji
+                    const winnerEmoji = currentPlayer === 'x' ? currentEmojis.x : currentEmojis.o;
+                    message.textContent += ` ${winnerEmoji.repeat(3)}`;
+                    return;
+                }
+                
+                // Check for draw
+                if (!gameState.includes('')) {
+                    playSound('draw');
+                    message.textContent = drawMessages[Math.floor(Math.random() * drawMessages.length)];
+                    gameActive = false;
+                    return;
+                }
+                
+                // Switch player
+                currentPlayer = currentPlayer === 'x' ? 'o' : 'x';
+                updatePlayerDisplay();
+                message.textContent = `${currentPlayer === 'x' ? currentEmojis.x : currentEmojis.o}'s turn!`;
+                
+                // If in troll mode and it's player 2's turn
+                if (trollMode && currentPlayer === 'o' && gameActive) {
+                    setTimeout(() => {
+                        makeTrollMove();
+                    }, 500);
+                }
+            }
+            
+            // Make a troll move
+            function makeTrollMove() {
+                if (!gameActive) return;
+                
+                // First check if we can win
+                let move = findWinningMove('o');
+                
+                // If not, check if we need to block
+                if (move === -1) {
+                    move = findWinningMove('x');
+                }
+                
+                // If neither, make a random move
+                if (move === -1) {
+                    const emptyCells = gameState.map((cell, index) => cell === '' ? index : null).filter(val => val !== null);
+                    if (emptyCells.length > 0) {
+                        // Sometimes make a really bad move for trolling
+                        if (Math.random() < 0.3) {
+                            // Find the worst possible move (avoid completing opponent's line)
+                            move = findWorstMove(emptyCells);
+                        } else {
+                            move = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                        }
+                    }
+                }
+                
+                if (move !== -1) {
+                    // Add dramatic delay for trolling
+                    setTimeout(() => {
+                        gameState[move] = 'o';
+                        const cell = document.querySelector(`.cell[data-index="${move}"]`);
+                        cell.textContent = currentEmojis.o;
+                        cell.classList.add('o');
+                        
+                        // Extra animation for trolling
+                        cell.style.transform = 'rotate(360deg) scale(1.5)';
+                        setTimeout(() => {
+                            cell.style.transform = 'rotate(0) scale(1)';
+                        }, 500);
+                        
+                        playSound('troll');
+                        checkResult();
+                    }, 1000);
+                }
+            }
+            
+            // Find a winning move for the given player
+            function findWinningMove(player) {
+                for (let i = 0; i < winningConditions.length; i++) {
+                    const [a, b, c] = winningConditions[i];
+                    const cells = [gameState[a], gameState[b], gameState[c]];
+                    
+                    // Count player's marks and empty cells
+                    const playerCount = cells.filter(cell => cell === player).length;
+                    const emptyCount = cells.filter(cell => cell === '').length;
+                    
+                    if (playerCount === 2 && emptyCount === 1) {
+                        // Return the empty cell index
+                        if (gameState[a] === '') return a;
+                        if (gameState[b] === '') return b;
+                        if (gameState[c] === '') return c;
+                    }
+                }
+                return -1;
+            }
+            
+            // Find the worst possible move (for trolling)
+            function findWorstMove(emptyCells) {
+                // Try to find a move that doesn't help the opponent
+                for (let i = 0; i < emptyCells.length; i++) {
+                    const index = emptyCells[i];
+                    let isBad = true;
+                    
+                    // Check if this move would complete any potential line for opponent
+                    for (let j = 0; j < winningConditions.length; j++) {
+                        const [a, b, c] = winningConditions[j];
+                        if (a === index || b === index || c === index) {
+                            const cells = [gameState[a], gameState[b], gameState[c]];
+                            const opponentCount = cells.filter(cell => cell === 'x').length;
+                            const emptyCount = cells.filter(cell => cell === '').length;
+                            
+                            if (opponentCount === 1 && emptyCount === 2) {
+                                isBad = false;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (isBad) {
+                        return index;
+                    }
+                }
+                
+                // If all moves are somewhat good, just pick a random one
+                return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            }
+            
+            // Create confetti effect
+            function createConfetti(element, count) {
+                const rect = element.getBoundingClientRect();
+                for (let i = 0; i < count; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = `${rect.left + Math.random() * rect.width}px`;
+                    confetti.style.top = `${rect.top + Math.random() * rect.height}px`;
+                    confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                    confetti.style.width = `${5 + Math.random() * 10}px`;
+                    confetti.style.height = confetti.style.width;
+                    document.body.appendChild(confetti);
+                    
+                    // Animate
+                    const angle = Math.random() * Math.PI * 2;
+                    const velocity = 5 + Math.random() * 5;
+                    const x = Math.cos(angle) * velocity;
+                    const y = Math.sin(angle) * velocity;
+                    
+                    let posX = rect.left + rect.width / 2;
+                    let posY = rect.top + rect.height / 2;
+                    let opacity = 1;
+                    
+                    const animate = () => {
+                        posX += x;
+                        posY += y - 0.1; // slight upward motion
+                        opacity -= 0.02;
+                        
+                        confetti.style.left = `${posX}px`;
+                        confetti.style.top = `${posY}px`;
+                        confetti.style.opacity = opacity;
+                        
+                        if (opacity > 0) {
+                            requestAnimationFrame(animate);
+                        } else {
+                            confetti.remove();
+                        }
+                    };
+                    
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            // Play sound
+            function playSound(type) {
+                // In a real implementation, you would play actual sound files here
+                // For this example, we'll just log it
+                console.log(`Playing ${type} sound`);
+            }
+            
+            // Event listeners
+            cells.forEach(cell => {
+                cell.addEventListener('click', handleCellClick);
+            });
+            
+            resetBtn.addEventListener('click', initGame);
+            
+            trollBtn.addEventListener('click', () => {
+                trollMode = !trollMode;
+                trollBtn.style.backgroundColor = trollMode ? '#ff4757' : '#9d65c9';
+                trollBtn.textContent = trollMode ? 
+                    "Troll Mode ACTIVATED! 😈" : 
+                    "Troll Mode 🤪";
+                message.textContent = trollMode ? 
+                    "Troll mode activated! Good luck with that! 😏" : 
+                    "Troll mode deactivated. You're safe... for now.";
+                
+                if (trollMode && currentPlayer === 'o' && gameActive) {
+                    makeTrollMove();
+                }
+                
+                createConfetti(trollBtn, trollMode ? 20 : 10);
+            });
+            
+            chaosBtn.addEventListener('click', () => {
+                chaosMode = !chaosMode;
+                chaosBtn.style.backgroundColor = chaosMode ? '#ff4757' : '#ff9a56';
+                chaosBtn.textContent = chaosMode ? 
+                    "CHAOS MODE! 🤯" : 
+                    "Chaos Mode 🌪️";
+                message.textContent = chaosMode ? 
+                    "CHAOS MODE ENGAGED! ALL BETS ARE OFF! 🎲" : 
+                    "Chaos mode deactivated. Things are normal again. Boring.";
+                
+                createConfetti(chaosBtn, chaosMode ? 30 : 10);
+                
+                if (chaosMode) {
+                    // Randomly change emojis a few times for effect
+                    for (let i = 0; i < 3; i++) {
+                        setTimeout(() => {
+                            changeEmojis();
+                        }, i * 500);
+                    }
+                }
+            });
+            
+            emojiBtn.addEventListener('click', () => {
+                changeEmojis();
+            });
+            
+            // Start the game
+            initGame();
+            
+            // Add some initial confetti for fun
+            setTimeout(() => {
+                createConfetti(board, 30);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
